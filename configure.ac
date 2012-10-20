@@ -14,7 +14,7 @@ AC_PROG_CXX
 AC_PROG_CPP
 AC_PROG_LIBTOOL
 
-AC_SEARCH_LIBS([pthread_create],[pthread],, AC_MSG_ERROR("required library 'pthread' is missing"))
+AC_SEARCH_LIBS([pthread_create],[pthread],, AC_MSG_ERROR([required library 'pthread' is missing]))
 
 AC_ARG_ENABLE([release],
   [AS_HELP_STRING([--enable-release],
@@ -22,9 +22,22 @@ AC_ARG_ENABLE([release],
   [use_release=$enableval],
   [use_release=no])
 
+### External libraries options
+AC_ARG_ENABLE([external-ffmpeg],
+  [AS_HELP_STRING([--enable-external-ffmpeg],
+  [enable use of external ffmpeg libraries (default is no) 'Linux only'])],
+  [use_external_ffmpeg=$enableval],
+  [use_external_ffmpeg=no])
+
 BUILD_TYPE="debug"
 if test "$use_release" = "yes"; then
   BUILD_TYPE="release"
+fi
+
+AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
+if test "x$HAVE_PKG_CONFIG" != "xyes" ; then
+  AC_MSG_WARN([pkg-config was not found on your system. external ffmpeg will be disabled])
+  use_external_ffmpeg="no"
 fi
 
 OS="unknown"
@@ -33,8 +46,17 @@ HOST_INCLUDES=""
 HOST_CXXFLAGS=""
 ARCH_DEFINES="-DTARGET_POSIX -DTARGET_LINUX -D_LINUX"
 DYN_LIB_EXT="so"
-
+TARGET_LDFLAGS=""
+BIN_EXT=".pvr"
+BINPREFIX=""
 case "${host}" in
+  arm-*-linux-androideabi)
+    TARGET_LDFLAGS="-avoid-version -no-undefined"
+    OS="android"
+    ARCHITECTURE="arm"
+    BIN_EXT=".so"
+    BINPREFIX="lib"
+    ;;
   arm*-*-linux*)
     OS="linux"
     ARCHITECTURE="arm"
@@ -69,8 +91,28 @@ case "${host}" in
   *-freebsd*)
     OS="freebsd"
     ARCH_DEFINES="-DTARGET_POSIX -DTARGET_FREEBSD -D_LINUX"
+    use_external_ffmpeg="yes"  # same as on xbmc
     ;;
 esac
+
+### External libraries checks
+# FFmpeg
+if test "$use_external_ffmpeg" = "yes"; then
+  PKG_CHECK_MODULES([FFMPEG], [libavcodec],
+                    [FFMPEG_INCLUDES="$FFMPEG_CFLAGS"; LIBS="$LIBS $FFMPEG_LIBS"],
+                    AC_MSG_ERROR(cannot find libavcodec))
+
+  # Possible places the ffmpeg headers may be
+  AC_CHECK_HEADERS([libavcodec/avcodec.h],[FFMPEG_INCLUDES="-I$($PKG_CONFIG --variable=includedir libavcodec)/libavcodec"],
+    [AC_CHECK_HEADERS([ffmpeg/avcodec.h],[FFMPEG_INCLUDES="-I$($PKG_CONFIG --variable=includedir libavcodec)/ffmpeg"],
+      [AC_MSG_ERROR(avcodec.h not found)])
+  ])
+
+  echo "FFMPEG_INCLUDES: $FFMPEG_INCLUDES"
+fi
+AC_SUBST(FFMPEG_INCLUDES)
+
+### End external Libraries 
 
 ### Check for Intree building
 if test "x${cross_compiling}" = "xyes" || test "x${cross_compiling}" = "xmaybe"; then
@@ -92,6 +134,9 @@ AC_SUBST(HOST_INCLUDES)
 AC_SUBST(OS)
 AC_SUBST(ARCH_DEFINES)
 AC_SUBST(DYN_LIB_EXT)
+AC_SUBST(TARGET_LDFLAGS)
+AC_SUBST(BINPREFIX)
+AC_SUBST(BIN_EXT)
 
 if test "x$host_os_osx" = "xyes"; then
   AM_CONDITIONAL(HOST_IS_OSX, true)
@@ -128,6 +173,8 @@ AC_OUTPUT([Makefile
            addons/pvr.fortherecord.argus/Makefile
            addons/pvr.hts/Makefile
            addons/pvr.mediaportal.tvserver/Makefile
+           addons/pvr.nextpvr/Makefile
            addons/pvr.njoy/Makefile
+           addons/pvr.vuplus/Makefile
            addons/pvr.vdr.vnsi/Makefile])
 
