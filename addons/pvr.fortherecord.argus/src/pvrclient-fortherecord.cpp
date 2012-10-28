@@ -113,10 +113,10 @@ bool cPVRClientForTheRecord::Connect()
 
   // Check the accessibility status of all the shares used by ForTheRecord tuners
   // TODO: this is temporarily disabled until the caching of smb:// directories is resolved
-//  if (ShareErrorsFound())
-//  {
-//    XBMC->QueueNotification(QUEUE_ERROR, "Share errors: see xbmc.log");
-//  }
+  if (ShareErrorsFound())
+  {
+    XBMC->QueueNotification(QUEUE_ERROR, "Share errors: see xbmc.log");
+  }
 
   m_bConnected = true;
   return true;
@@ -223,7 +223,7 @@ bool cPVRClientForTheRecord::ShareErrorsFound(void)
       }
       CIFSname.erase(0,2);
       CIFSname.insert(0, SMBPrefix);
-      isAccessibleByAddon = XBMC->CanOpenDirectory(CIFSname.c_str());
+      isAccessibleByAddon = XBMC->CanOpenDirectory(CIFSname.c_str(), DIR_FLAG_BYPASS_CACHE);
 #else
 #error implement for your OS!
 #endif

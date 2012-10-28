@@ -96,6 +96,21 @@ namespace ADDON
     QUEUE_ERROR
   } queue_msg_t;
 
+  /*! \brief Available directory flags
+   The defaults are to allow file directories, no prompting, retrieve file information, hide hidden files, and utilise the directory cache
+   based on the implementation's wishes.
+   */
+  enum DIR_FLAG
+  {
+    DIR_FLAG_DEFAULTS      = 0,
+    DIR_FLAG_NO_FILE_DIRS  = (2 << 0), ///< Don't convert files (zip, rar etc.) to directories
+    DIR_FLAG_ALLOW_PROMPT  = (2 << 1), ///< Allow prompting for further info (passwords etc.)
+    DIR_FLAG_NO_FILE_INFO  = (2 << 2), ///< Don't read additional file info (stat for example)
+    DIR_FLAG_GET_HIDDEN    = (2 << 3), ///< Get hidden files
+    DIR_FLAG_READ_CACHE    = (2 << 4), ///< Force reading from the directory cache (if available)
+    DIR_FLAG_BYPASS_CACHE  = (2 << 5)  ///< Completely bypass the directory cache (no reading, no writing)
+  };
+
   class CHelper_libXBMC_addon
   {
   public:
@@ -230,7 +245,7 @@ namespace ADDON
         dlsym(m_libXBMC_addon, "XBMC_delete_file");
       if (XBMC_delete_file == NULL) { fprintf(stderr, "Unable to assign function %s\n", dlerror()); return false; }
 
-      XBMC_can_open_directory = (bool (*)(void* HANDLE, void* CB, const char* strURL))
+      XBMC_can_open_directory = (bool (*)(void* HANDLE, void* CB, const char* strURL, int flags))
         dlsym(m_libXBMC_addon, "XBMC_can_open_directory");
       if (XBMC_can_open_directory == NULL) { fprintf(stderr, "Unable to assign function %s\n", dlerror()); return false; }
 
@@ -486,9 +501,9 @@ namespace ADDON
      * @param strUrl The URL of the directory to check.
      * @return True when it can be opened, false otherwise.
      */
-    bool CanOpenDirectory(const char* strUrl)
+    bool CanOpenDirectory(const char* strUrl, int flags = DIR_FLAG_DEFAULTS)
     {
-      return XBMC_can_open_directory(m_Handle, m_Callbacks, strUrl);
+      return XBMC_can_open_directory(m_Handle, m_Callbacks, strUrl, flags);
     }
 
     /*!
@@ -545,7 +560,7 @@ namespace ADDON
     bool (*XBMC_file_exists)(void *HANDLE, void* CB, const char *strFileName, bool bUseCache);
     int (*XBMC_stat_file)(void *HANDLE, void* CB, const char *strFileName, struct __stat64* buffer);
     bool (*XBMC_delete_file)(void *HANDLE, void* CB, const char *strFileName);
-    bool (*XBMC_can_open_directory)(void *HANDLE, void* CB, const char* strURL);
+    bool (*XBMC_can_open_directory)(void *HANDLE, void* CB, const char* strURL, int flags);
     bool (*XBMC_create_directory)(void *HANDLE, void* CB, const char* strPath);
     bool (*XBMC_directory_exists)(void *HANDLE, void* CB, const char* strPath);
     bool (*XBMC_remove_directory)(void *HANDLE, void* CB, const char* strPath);
