@@ -141,14 +141,23 @@ if test "$build_addons_with_dependencies" = "yes"; then
       AC_SUBST(MYSQL_INCLUDES)
       AC_SUBST(MYSQL_LIBS)
     else
-      echo "MySQL not found"
       use_mysql=no
     fi
   fi
+  echo "MySQL: $use_mysql"
+
+  # Checks for boost headers
+  AC_LANG_PUSH([C++])
+  AC_CHECK_HEADER([boost/shared_ptr.hpp], use_boost=yes, use_boost=no,)
+  AC_LANG_POP([C++])
+  if test "$use_boost" = "yes"; then
+    AC_DEFINE([HAVE_BOOST],[1],["Define to 1 if we have the `boost' headers"])
+  fi
+  echo "Boost: $use_boost"
 fi
 
 ### Addons with dependencies
-AM_CONDITIONAL([ADDON_MYTHTV], [test "$build_addons_with_dependencies" = "yes" -a "$use_mysql" = "yes"])
+AM_CONDITIONAL([ADDON_MYTHTV], [test "$build_addons_with_dependencies" = "yes" -a "$use_mysql" = "yes" -a "$use_boost" = "yes"])
 
 ### Check for Intree building
 if test "x${cross_compiling}" = "xyes" || test "x${cross_compiling}" = "xmaybe"; then
@@ -208,6 +217,7 @@ AC_CONFIG_FILES([Makefile \
                  lib/cmyth/librefmem/Makefile \
                  addons/Makefile \
                  addons/pvr.demo/Makefile \
+                 addons/pvr.dvbviewer/Makefile \
                  addons/pvr.fortherecord.argus/Makefile \
                  addons/pvr.hts/Makefile \
                  addons/pvr.mediaportal.tvserver/Makefile \
