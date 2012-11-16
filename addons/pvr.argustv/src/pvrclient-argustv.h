@@ -76,7 +76,6 @@ public:
   /* Timer handling */
   int GetNumTimers(void);
   PVR_ERROR GetTimers(ADDON_HANDLE handle);
-  PVR_ERROR GetTimerInfo(unsigned int timernumber, PVR_TIMER &timer);
   PVR_ERROR AddTimer(const PVR_TIMER &timer);
   PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool bForceDelete = false);
   PVR_ERROR UpdateTimer(const PVR_TIMER &timer);

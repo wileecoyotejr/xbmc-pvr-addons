@@ -711,7 +711,7 @@ PVR_ERROR cPVRClientArgusTV::GetRecordings(ADDON_HANDLE handle)
       if (recordinggroup.Parse(recordinggroupresponse[recordinggroupindex]))
       {
         Json::Value recordingsbytitleresponse;
-        retval = ArgusTV::GetRecordingsForTitle(recordinggroup.ProgramTitle(), m_iBackendVersion, recordingsbytitleresponse);
+        retval = ArgusTV::GetRecordingsForTitle(recordinggroup.ProgramTitle(), recordingsbytitleresponse);
         if (retval >= 0)
         {
           // process list of recording summaries for this group
@@ -986,12 +986,6 @@ PVR_ERROR cPVRClientArgusTV::GetTimers(ADDON_HANDLE handle)
   }
 
   return PVR_ERROR_NO_ERROR;
-}
-
-PVR_ERROR cPVRClientArgusTV::GetTimerInfo(unsigned int timernumber, PVR_TIMER &tag)
-{
-  NOTUSED(timernumber); NOTUSED(tag);
-  return PVR_ERROR_NOT_IMPLEMENTED;
 }
 
 PVR_ERROR cPVRClientArgusTV::AddTimer(const PVR_TIMER &timerinfo)

@@ -644,7 +644,7 @@ namespace ArgusTV
   {
     if(!g_current_livestream.empty())
     {
-      Json::StyledWriter writer;
+      Json::FastWriter writer;
       std::string arguments = writer.write(g_current_livestream);
 
       std::string response;
@@ -675,7 +675,7 @@ namespace ArgusTV
   {
     if(!g_current_livestream.empty())
     {
-      Json::StyledWriter writer;
+      Json::FastWriter writer;
       std::string arguments = writer.write(g_current_livestream);
 
       int retval = ArgusTVJSONRPC("ArgusTV/Control/GetLiveStreamTuningDetails", arguments, response);
@@ -701,7 +701,7 @@ namespace ArgusTV
     //true
     if(!g_current_livestream.empty())
     {
-      Json::StyledWriter writer;
+      Json::FastWriter writer;
       std::string arguments = writer.write(g_current_livestream);
 
       Json::Value response;
@@ -776,7 +776,7 @@ namespace ArgusTV
     return retval;
   }
 
-  int GetRecordingsForTitle(const std::string& title, int iBackendversion, Json::Value& response)
+  int GetRecordingsForTitle(const std::string& title, Json::Value& response)
   {
     XBMC->Log(LOG_DEBUG, "GetRecordingsForTitle");
 
@@ -1055,7 +1055,7 @@ namespace ArgusTV
 
     XBMC->Log(LOG_DEBUG, "AbortActiveRecording");
 
-    Json::StyledWriter writer;
+    Json::FastWriter writer;
     std::string arguments = writer.write(activeRecording);
 
     std::string response;

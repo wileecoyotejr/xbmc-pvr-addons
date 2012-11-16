@@ -199,7 +199,7 @@ namespace ArgusTV
    * \param title Program title of recording
    * \param response Reference to a std::string used to store the json response string
    */
-  int GetRecordingsForTitle(const std::string& title, int iBackendversion, Json::Value& response);
+  int GetRecordingsForTitle(const std::string& title, Json::Value& response);
 
   /**
    * \brief Fetch the detailed information of a recorded show
