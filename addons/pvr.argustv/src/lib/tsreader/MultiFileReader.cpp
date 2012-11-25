@@ -66,7 +66,7 @@ MultiFileReader::MultiFileReader():
   m_filesRemoved = 0;
   m_TSFileId = 0;
   m_bDelay = 0;
-  m_bDebugOutput = false;
+  m_bDebugOutput = true;
 }
 
 MultiFileReader::~MultiFileReader()
@@ -280,7 +280,10 @@ long MultiFileReader::Read(unsigned char* pbData, unsigned long lDataLength, uns
 long MultiFileReader::RefreshTSBufferFile()
 {
   if (m_TSBufferFile.IsFileInvalid())
+  {
+     XBMC->Log(LOG_DEBUG, "m_TSBufferFile is invalid.");
     return S_FALSE;
+  }
 
   unsigned long bytesRead;
   MultiFileReaderFile *file;
@@ -314,11 +317,13 @@ long MultiFileReader::RefreshTSBufferFile()
       return S_FALSE;
     }
 
+    XBMC->Log(LOG_DEBUG, "MultiFileReader::RefreshTSBufferFile() moving filepointer to start");
     m_TSBufferFile.SetFilePointer(0, FILE_BEGIN);
 
     uint32_t readLength = sizeof(currentPosition) + sizeof(filesAdded) + sizeof(filesRemoved);
     unsigned char* readBuffer = new unsigned char[readLength];
 
+    XBMC->Log(LOG_DEBUG, "MultiFileReader::RefreshTSBufferFile() reading first %d bytes", readLength);
     result = m_TSBufferFile.Read(readBuffer, readLength, &bytesRead);
 
     if (!SUCCEEDED(result) || bytesRead!=readLength)
