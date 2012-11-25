@@ -306,9 +306,19 @@ long MultiFileReader::RefreshTSBufferFile()
     filesRemoved2 = -2;
 
     int64_t fileLength = m_TSBufferFile.GetFileSize();
+    XBMC->Log(LOG_DEBUG, "MultiFileReader::RefreshTSBufferFile() TSBufferFile filelength %ld", fileLength);
 
     // Min file length is Header ( int64_t + int32_t + int32_t ) + filelist ( > 0 ) + Footer ( int32_t + int32_t )
     int64_t minimumlength = (int64_t)(sizeof(currentPosition) + sizeof(filesAdded) + sizeof(filesRemoved) + sizeof(wchar_t) + sizeof(filesAdded2) + sizeof(filesRemoved2));
+
+    if (fileLength <= minimumlength)
+    {
+      // short wait and try again
+      usleep(500000);
+      fileLength = m_TSBufferFile.GetFileSize();
+      XBMC->Log(LOG_DEBUG, "MultiFileReader::RefreshTSBufferFile() TSBufferFile filelength after 500ms %ld", fileLength);
+    }
+
     if (fileLength <= minimumlength)
     {
       if (m_bDebugOutput)
