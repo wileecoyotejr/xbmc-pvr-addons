@@ -313,19 +313,10 @@ long MultiFileReader::RefreshTSBufferFile()
 
     if (fileLength <= minimumlength)
     {
-      // short wait and try again
-      usleep(500000);
-      fileLength = m_TSBufferFile.GetFileSize();
-      XBMC->Log(LOG_DEBUG, "MultiFileReader::RefreshTSBufferFile() TSBufferFile filelength after 500ms %ld", fileLength);
-    }
-
-    if (fileLength <= minimumlength)
-    {
       if (m_bDebugOutput)
       {
-        XBMC->Log(LOG_DEBUG, "MultiFileReader::RefreshTSBufferFile() TSBufferFile too short. Minimum length %ld, current length %ld", minimumlength, fileLength);
+        XBMC->Log(LOG_NOTICE, "MultiFileReader::RefreshTSBufferFile() TSBufferFile too short, but trying to read anyway. Minimum length %ld, current length %ld", minimumlength, fileLength);
       }
-      return S_FALSE;
     }
 
     XBMC->Log(LOG_DEBUG, "MultiFileReader::RefreshTSBufferFile() moving filepointer to start");
