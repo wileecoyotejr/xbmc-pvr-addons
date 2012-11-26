@@ -92,6 +92,21 @@ long MultiFileReader::SetFileName(const char* pszFileName)
 long MultiFileReader::OpenFile()
 {
   long hr = m_TSBufferFile.OpenFile();
+  XBMC->Log(LOG_DEBUG, "MultiFileReader: buffer file opened return code %d.", hr);
+
+  int64_t fileLength = m_TSBufferFile.GetFileSize();
+  int retryCount = 0;
+
+  if (fileLength == 0) do
+  {
+    retryCount++;
+    XBMC->Log(LOG_DEBUG, "MultiFileReader: buffer file has zero length, closing and re-opening. Try %d.", retryCount);
+    (void) m_TSBufferFile.CloseFile();
+    hr = m_TSBufferFile.OpenFile();
+    XBMC->Log(LOG_DEBUG, "MultiFileReader: buffer file opened return code %d.", hr);
+
+    fileLength = m_TSBufferFile.GetFileSize();
+  } while (retryCount < 10);
 
   if (RefreshTSBufferFile() == S_FALSE)
   {
@@ -315,8 +330,9 @@ long MultiFileReader::RefreshTSBufferFile()
     {
       if (m_bDebugOutput)
       {
-        XBMC->Log(LOG_NOTICE, "MultiFileReader::RefreshTSBufferFile() TSBufferFile too short, but trying to read anyway. Minimum length %ld, current length %ld", minimumlength, fileLength);
+        XBMC->Log(LOG_NOTICE, "MultiFileReader::RefreshTSBufferFile() TSBufferFile too short. Minimum length %ld, current length %ld", minimumlength, fileLength);
       }
+      return S_FALSE;
     }
 
     XBMC->Log(LOG_DEBUG, "MultiFileReader::RefreshTSBufferFile() moving filepointer to start");
