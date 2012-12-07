@@ -107,7 +107,7 @@ long MultiFileReader::OpenFile()
     XBMC->Log(LOG_DEBUG, "MultiFileReader: buffer file opened return code %d.", hr);
 
     fileLength = m_TSBufferFile.GetFileSize();
-  } while (retryCount < 10);
+  } while (retryCount < 20);
 
   if (RefreshTSBufferFile() == S_FALSE)
   {
