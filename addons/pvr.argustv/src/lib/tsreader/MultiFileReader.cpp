@@ -100,8 +100,9 @@ long MultiFileReader::OpenFile()
   if (fileLength == 0) do
   {
     retryCount++;
-    XBMC->Log(LOG_DEBUG, "MultiFileReader: buffer file has zero length, closing and re-opening. Try %d.", retryCount);
+    XBMC->Log(LOG_DEBUG, "MultiFileReader: buffer file has zero length, closing, waiting 500 ms and re-opening. Try %d.", retryCount);
     (void) m_TSBufferFile.CloseFile();
+    usleep(500000);
     hr = m_TSBufferFile.OpenFile();
     XBMC->Log(LOG_DEBUG, "MultiFileReader: buffer file opened return code %d.", hr);
 
